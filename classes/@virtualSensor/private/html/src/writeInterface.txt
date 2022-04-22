@@ -1,0 +1,23 @@
+%% WRITE INTERFACE
+% Writes the VHDL code implementing block vs_ser_interface or block
+% vs_par_interface in vs circuit
+
+%%
+% Private method of <../../html/virtualsensor.html virtualsensor> object.
+% 
+%% Description
+% This function opens the VHDL file describing block vs_ser_interface,
+% or vs_par_interface locaded in the default vhdl folder for MOBY-DIC 
+% toolbox, retrieves the lines "--- BEGIN MATLABGEN ---" and writes the 
+% VHDL code below them.
+%% Syntax
+% *writeVHDLInterface(object,circ_param,folder)*
+%% Acknowledgements
+%
+% Contributors:
+% 
+% * Alberto Oliveri (alberto.oliveri@unige.it)
+% 
+% Copyright is with:
+% 
+% * Copyright (C) 2011 University of Genoa, Italy.

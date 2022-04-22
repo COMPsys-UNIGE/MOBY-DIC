@@ -1,0 +1,23 @@
+%% WRITE PACKAGE
+% Writes the VHDL code implementing block vs_ser_package or block
+% vs_par_package in vs circuit
+
+%%
+% Private method of <../../html/virtualsensor.html virtualsensor> object.
+% 
+%% Description
+% This function opens the VHDL file describing block vs_ser_package,
+% or vs_par_package locaded in the default vhdl folder for MOBY-DIC 
+% toolbox, retrieves the lines "--- BEGIN MATLABGEN ---" and writes the 
+% VHDL code below them.
+%% Syntax
+% *writePackage(object,acquisition_latency,sampling_latency,z0,gamma,fmin)*
+%% Acknowledgements
+%
+% Contributors:
+% 
+% * Alberto Oliveri (alberto.oliveri@unige.it)
+% 
+% Copyright is with:
+% 
+% * Copyright (C) 2011 University of Genoa, Italy.
