@@ -1,0 +1,162 @@
+function varargout = eval(object,x,varargin)
+% eval   Evaluates the approximate MPC control function
+%
+% U = eval(OBJ,X)
+% Evaluates the control function at the system states specified by matrix 
+% X. X must be a NX x NPOINTS matrix. U is a NU x NPOINTS matrix.
+% NX and NU are the number of system states and inputs, respectively.
+% OBJ is the MPCctrl object.
+%
+% U = eval(OBJ,X,REF)
+% If the controller is designed for tracking, the reference state or output
+% REF must also be provided. REF must be a matrix with as many columns as the
+% number of variables to track and as many rows as the number of rows of X. 
+% If REF has only one row, the same value is used for all points.
+%
+% U = eval(OBJ,X,P,D)
+% Evaluates the control function at the system states specified by matrix 
+% X, with the parameters specified by matrix P and the unmeasurable inputs
+% specified by matrix D. X must be a NPOINTS x NX matrix. P must be either
+% a 1 x NP or a NPOINTS x NP matrix, being NP the number of system
+% parameters. If P has one row, the same value is replicated for all
+% points. P must be either a 1 x ND or a NPOINTS x ND matrix, being ND the 
+% number of unmeasurable inputs. If D has one row, the same value is 
+% replicated for all points.
+%
+% U = eval(OBJ,X,P,D,REF)
+% If the controller is designed for tracking, the reference state or output
+% REF must also be provided.
+%
+% Mex files are used to speedup the computation.
+
+% Contributors:
+%
+% Alberto Oliveri (alberto.oliveri@unige.it)
+% Matteo Lodi (matteo.lodi@edu.unige.it)
+%
+% Copyright (C) 2016 University of Genoa, Italy.
+
+% Legal note:
+% This program is free software; you can redistribute it and/or
+% modify it under the terms of the GNU General Public
+% License as published by the Free Software Foundation; either
+% version 2.1 of the License, or (at your option) any later version.
+%
+% This program is distributed in the hope that it will be useful,
+% but WITHOUT ANY WARRANTY; without even the implied warranty of
+% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+% General Public License for more details.
+%
+% You should have received a copy of the GNU General Public
+% License along with this library; if not, write to the
+% Free Software Foundation, Inc.,
+% 59 Temple Place, Suite 330,
+% Boston, MA  02111-1307  USA
+
+
+if nargin == 2
+    p = [];
+    d = [];
+    ref = [];
+elseif nargin == 3
+    p = [];
+    d = [];
+    ref = varargin{1};
+elseif nargin == 4
+    p = varargin{1};
+    d = varargin{2};
+    ref = [];
+elseif nargin == 5
+    p = varargin{1};
+    d = varargin{2};
+    ref = varargin{3};
+else
+    error('Wrong input arguments');
+end
+
+if object.tracking && isempty(ref)
+    error('ref must be provided for tracking controllers');
+end
+
+% Number of variables
+nx = object.nx;
+np = object.np;
+nd = object.nd;
+nu = object.nu;
+nfun = object.nfun;
+
+% Check on x
+if size(x,1) ~= object.nx
+    error(['Matrix x must be of a matrix with ',num2str(nx),' rows']);
+end
+
+% Check on p
+if size(p,1) ~= object.np
+    error(['Matrix p must be of a matrix with ',num2str(np),' rows']);
+end
+
+% Check on d
+if size(d,1) ~= object.nd
+    error(['Matrix d must be of a matrix with ',num2str(nd),' rows']);
+end
+
+% Check on ref
+if ~isempty(ref)
+    if size(ref,1) ~= numel(object.trackvar)
+        error(['ref must be a matrix with ',num2str(numel(object.trackvar)),' rows']);
+    end
+end
+
+% Number of points x
+npoints = size(x,2);
+
+% If only one parameter or unmeasurable input is provided, it is replicated
+% for each x
+if size(p,2) == 1
+    p = repmat(p,1,npoints);
+end
+if size(d,2) == 1
+    d = repmat(d,1,npoints);
+end
+if object.tracking
+    if size(ref,2) == 1
+        ref = repmat(ref,1,npoints);
+    end
+end
+
+% Number of points
+nptp = size(p,2);
+nptd = size(d,2);
+nptref = size(ref,2);
+
+if ~isempty(p)
+    if nptp ~= npoints
+        error(['p must be a matrix with either 1 or ',num2str(npoints),' points'])
+    end
+end
+if ~isempty(d)
+    if nptd ~= npoints
+        error(['d must be a matrix with either 1 or ',num2str(npoints),' points'])
+    end
+end
+if ~isempty(ref)
+    if nptref ~= npoints
+        error(['ref must be a matrix with either 1 or ',num2str(npoints),' points'])
+    end
+end
+
+% Extended state
+x = [x; p; d; ref];
+
+if nargout < 2
+    u = object.fun.eval(x,1:nu);
+    varargout{1} = u;
+else
+    u = object.fun.eval(x);
+    varargout{1} = u(1:nu,:);
+    varargout{2} = cell(nfun,1);
+    for i = 1:nfun
+        varargout{2}{i} = u((1:nu)+(i-1)*nu,:);
+    end
+end
+end

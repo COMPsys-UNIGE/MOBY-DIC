@@ -1,0 +1,41 @@
+function object = setUnmeasurableInputNames(object,unmeasurableInputNames)
+% setUnmeasurableInputNames   Gives a mnemonical name to the unmeasurable
+% inputs
+%
+% OBJ = setUnmeasurableInputNames(OBJ,UNMINPUTNAMES)
+% UNMINPUTNAMES must be a cell array whose elements are strings representing
+% the name of the corresponding unmeasurable input. OBJ is the controller object.
+%
+% See also controller/setInputNames, controller/setParameterNames, 
+% controller/setStateNames.
+ 
+% Contributors:
+%
+% Alberto Oliveri (alberto.oliveri@unige.it)
+% Matteo Lodi (matteo.lodi@edu.unige.it)
+%
+% Copyright (C) 2016 University of Genoa, Italy.
+
+% Legal note:
+% This program is free software; you can redistribute it and/or
+% modify it under the terms of the GNU General Public
+% License as published by the Free Software Foundation; either
+% version 2.1 of the License, or (at your option) any later version.
+%
+% This program is distributed in the hope that it will be useful,
+% but WITHOUT ANY WARRANTY; without even the implied warranty of
+% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+% General Public License for more details.
+%
+% You should have received a copy of the GNU General Public
+% License along with this library; if not, write to the
+% Free Software Foundation, Inc.,
+% 59 Temple Place, Suite 330,
+% Boston, MA  02111-1307  USA
+
+
+if numel(unmeasurableInputNames) ~= object.nd
+    error('Number of names is different from number of unmeasurable inputs!');
+end
+
+object.dnames = unmeasurableInputNames(:)';
