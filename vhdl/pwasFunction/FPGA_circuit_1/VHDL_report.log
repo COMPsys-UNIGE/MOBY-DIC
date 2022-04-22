@@ -1,0 +1,16 @@
+-------------------------------------------------------------
+|                Circuit information report                  |
+-------------------------------------------------------------
+
+Circuit architecture: fast
+INPUTS
+	 - Resolution: 12 bits
+	 - Representation: signed
+	 - Range (model --> circuit):
+		x_1: [-10.000000 8.000000] --> x1: [100000000000 011111111111]
+		x_2: [-10.000000 7.000000] --> x2: [100000000000 011111111111]
+OUTPUTS
+	 - Resolution: 12 bits
+	 - Representation: signed
+	 - Range (model --> circuit):
+		y_1: [-1.000000 1.000000] --> y1: [100000000000 011111111111]
