@@ -1,0 +1,136 @@
+% getCloseLoopMatrices    Gets the matrices defining the LTI system
+% controlled in closed
+%
+% [A_cl, B_cl, C_cl, D_cl, Ex_cl, Ey_cl, Fx_cl, Fy_cl, Gx_cl, Gy_cl, Hx_cl,Hp_cl,Hd_cl, K_cl] = getCloseLoopMatrices(object)
+% Gets matrices A, B, C, D, Ex, Ey, Fx, Fy, Gx and Gy defining the closed loop system.
+% Matrices are cell array; the i-th matrix describe the sistem when the i-th
+% inequality [Hx_cl Hp_xl Hd_cl] * [x p d]' <= k_cl is valid.
+%
+
+% Contributors:
+%
+% Alberto Oliveri (alberto.oliveri@unige.it)
+%
+% Copyright (C) 2015 University of Genoa, Italy.
+
+% Legal note:
+% This program is free software; you can redistribute it and/or
+% modify it under the terms of the GNU General Public
+% License as published by the Free Software Foundation; either
+% version 2.1 of the License, or (at your option) any later version.
+%
+% This program is distributed in the hope that it will be useful,
+% but WITHOUT ANY WARRANTY; without even the implied warranty of
+% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+% General Public License for more details.
+%
+% You should have received a copy of the GNU General Public
+% License along with this library; if not, write to the
+% Free Software Foundation, Inc.,
+% 59 Temple Place, Suite 330,
+% Boston, MA  02111-1307  USA
+
+function CL_PWAsystem = getClosedLoopPWAsystem(object)
+
+controller = object.getController;
+
+if object.isContinuousTime
+    Ts = object.getController.getSamplingTime;
+    warning(['Closed loop need discrete time system! The system will be discretize with sample time ',num2str(Ts),'!']);
+    dtSys = object.discretize(Ts);
+else
+    Ts = object.getSamplingTime;
+    dtSys = object;
+end
+
+if isempty(controller)
+    error 'No close loop controllere set';
+end;
+
+pwagFun = controller.getFunction;
+
+nx = object.getNumberOfStates;
+np = object.getNumberOfParameters;
+nd = object.getNumberOfUnmeasurableInputs;
+nu = object.getNumberOfInputs;
+ny = object.getNumberOfOutputs;
+
+
+regions = pwagFun.getRegions;
+nRegion = numel(regions);
+
+CL_PWAsystem = pwaSys(nx,nu,ny,np,nd,'dt',Ts);
+
+% A_cl = cell(nRegion,1);
+% B_cl = cell(nRegion,1);
+% C_cl = cell(nRegion,1);
+% D_cl = cell(nRegion,1);
+% Ex_cl = cell(nRegion,1);
+% Ey_cl = cell(nRegion,1);
+% Fx_cl = cell(nRegion,1);
+% Fy_cl = cell(nRegion,1);
+% Gx_cl = cell(nRegion,1);
+% Gy_cl = cell(nRegion,1);
+% Hx_cl = cell(nRegion,1);
+% Hp_cl = cell(nRegion,1);
+% Hd_cl = cell(nRegion,1);
+% K_cl = cell(nRegion,1);
+
+[A, B, C, D, Ex, Ey, Fx, Fy, Gx, Gy, H, K] = dtSys.getMatrices();
+
+ind = 1;
+
+for j=1:object.nDyn
+    
+    for i=1:nRegion
+        reg = regions(i);
+        Ptmp = Polyhedron([H{j};reg.H],[K{j};reg.K]);
+        
+        if ~Ptmp.isEmptySet
+            
+            FFx = reg.F(1:nu,1:nx);
+            if np > 0
+                FFp = reg.F(1:nu,nx+1:nx+np);
+            else
+                FFp = zeros(nu,0);
+            end
+            if nd > 0
+                FFd = reg.F(1:nd,nx+np+1:end);
+            else
+                FFd = zeros(nu,0);
+            end
+            
+            A_cl = A{j}+B{j}*FFx;
+            B_cl = B{j};
+            Ex_cl = Ex{j}+B{j}*FFp;
+            Fx_cl = Fx{j}+B{j}*FFd;
+            Gx_cl = Gx{j}+B{j}*reg.G(1:nu);
+            
+            C_cl = C{j}+D{j}*FFx;
+            D_cl = D{j};
+            Ey_cl = Ey{j}+D{j}*FFp;
+            Fy_cl = Fy{j}+D{j}*FFd;
+            Gy_cl = Gy{j}+D{j}*reg.G(1:nu);
+            
+            
+            CL_PWAsystem = CL_PWAsystem.addDynamics(Ptmp.A,Ptmp.b);
+            % Set system matrices
+            CL_PWAsystem = CL_PWAsystem.setMatrices(ind,'A',A_cl);
+            CL_PWAsystem = CL_PWAsystem.setMatrices(ind,'B',B_cl);
+            CL_PWAsystem = CL_PWAsystem.setMatrices(ind,'C',C_cl);
+            CL_PWAsystem = CL_PWAsystem.setMatrices(ind,'D',D_cl);
+            CL_PWAsystem = CL_PWAsystem.setMatrices(ind,'Ex',Ex_cl);
+            CL_PWAsystem = CL_PWAsystem.setMatrices(ind,'Fx',Fx_cl);
+            CL_PWAsystem = CL_PWAsystem.setMatrices(ind,'Gx',Gx_cl);
+            CL_PWAsystem = CL_PWAsystem.setMatrices(ind,'Ey',Ey_cl);
+            CL_PWAsystem = CL_PWAsystem.setMatrices(ind,'Fy',Fy_cl);
+            CL_PWAsystem = CL_PWAsystem.setMatrices(ind,'Gy',Gy_cl);
+            ind = ind+1;
+        end
+        
+    end
+end
+end
+
+
+
