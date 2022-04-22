@@ -1,0 +1,9 @@
+function MOBYDIC_init
+
+edit getMOBYDICpars
+
+helpdlg(['File getMOBYDICpars.m has been be opened. ',...
+    'Follow the comments to set the global parameters of the toolbox'],...
+        'Set MOBY-DIC Toolbox parameters');
+
+% TO BE CONTINUED...

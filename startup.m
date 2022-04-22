@@ -1,0 +1,6 @@
+addpath([pwd,'/classes'])
+addpath([pwd,'/simulink'])
+addpath([pwd,'/vhdl'])
+addpath([pwd,'/functions'])
+addpath([pwd,'/c'])
+addpath([pwd,'/cpp'])
