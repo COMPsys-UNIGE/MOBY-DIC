@@ -266,26 +266,21 @@ fprintf(f,'typedef ap_fixed<%d, %d> fxd;\n\n', nbit_coeff, nbitInt_coeff);
 
 nbitInt_m_scale = ceil(log2(max([max(abs(M1),[],'all'), max(abs(M2),[],'all'), max(abs(M3),[],'all'), max(abs(M4),[],'all')],[],'all')));
 nbitInt_m = max(nbitInt_m_scale)+2;
-% fprintf(f,'typedef ap_fixed<%d, %d> fxd_m;\n\n', nbit_coeff, nbitInt_m);
-fprintf(f,'typedef ap_fixed<%d, %d> fxd_m;\n\n', nbit_coeff+nbitInt_m, nbitInt_m);
+fprintf(f,'typedef ap_fixed<%d, %d> fxd_m;\n\n', nbit_coeff+2, nbitInt_m);
+
+fprintf(f,'typedef ap_fixed<%d, %d> fxd_tmp_m;\n\n', 2*nbit_coeff + nbitInt_m + 2, nbitInt_coeff + nbitInt_m + 2);
+
 nCon = numel(v3);
 if nxref == 0
     nDim = Nu*nu + (N+1)*nx;
-%     fprintf(f,'typedef ap_fixed<%d, %d> fxd_tmp_m;\n\n', 2*nbit_coeff + floor(log2((max(nDim, nCon+(N+1)*nx)) * (2^nbit_coeff - 1))) + 1, nbitInt_coeff+nbitInt_m);
-%     fprintf(f,'typedef ap_fixed<%d, %d> fxd_tmp_m;\n\n', 2*nbit_coeff + floor(log2((max(nDim, nCon+(N+1)*nx)) * (2^nbit_coeff - 1))) + 1, nbitInt_coeff + nbitInt_m + floor(log2((max(nDim, nCon+(N+1)*nx)) * (2^nbitInt_coeff - 1))) + 1);
-    fprintf(f,'typedef ap_fixed<%d, %d> fxd_tmp_m;\n\n', 2*nbit_coeff + nbitInt_m + (max(nDim, nCon+(N+1)*nx)), nbitInt_coeff + nbitInt_m + max(nDim, nCon+(N+1)*nx));
 else
     nDim = Nu*nu + (N+1)*(nx+nu);
-%     fprintf(f,'typedef ap_fixed<%d, %d> fxd_tmp_m;\n\n', 2*nbit_coeff + floor(log2((max(nDim, nCon+(N+1)*(nx+nu))) * (2^nbit_coeff - 1))) + 1, nbitInt_coeff+nbitInt_m);
-%     fprintf(f,'typedef ap_fixed<%d, %d> fxd_tmp_m;\n\n', 2*nbit_coeff + floor(log2((max(nDim, nCon+(N+1)*(nx+nu))) * (2^nbit_coeff - 1))) + 1, nbitInt_coeff + nbitInt_m  + floor(log2((max(nDim, nCon+(N+1)*(nx+nu))) * (2^nbitInt_coeff - 1))) + 1);
-    fprintf(f,'typedef ap_fixed<%d, %d> fxd_tmp_m;\n\n', 2*nbit_coeff + nbitInt_m + (max(nDim, nCon+(N+1)*(nx+nu))), nbitInt_coeff + nbitInt_m + max(nDim, nCon+(N+1)*(nx+nu)));
 end
 
 nbitInt_p_scale = ceil(log2(max(abs([Aobs, Bobs, Gxobs]),[],'all')));
 nbitInt_p = max(nbitInt_p_scale)+2;
-% fprintf(f,'typedef ap_fixed<%d, %d> fxd_p;\n\n', nbit_coeff, nbitInt_p);
-fprintf(f,'typedef ap_fixed<%d, %d> fxd_p;\n\n', nbit_coeff + nbitInt_p, nbitInt_p);
-fprintf(f,'typedef ap_fixed<%d, %d> fxd_tmp_p;\n\n', 2*nbit_coeff + nbitInt_p, nbitInt_coeff+nbitInt_p);
+fprintf(f,'typedef ap_fixed<%d, %d> fxd_p;\n\n', nbit_coeff, nbitInt_p);
+fprintf(f,'typedef ap_fixed<%d, %d> fxd_tmp_p;\n\n', nbit_coeff, nbitInt);
 
 fprintf(f,'// Number of system states (x_k)\n');
 fprintf(f,'#define nX %d\n\n',nx);
