@@ -1,4 +1,3 @@
-function installMOBYDIC
 disp(' ')
 disp('********************************')
 disp('* Welcome to MOBY-DIC Toolbox! *')
@@ -42,6 +41,7 @@ evalc('abort = system(''vitis_hls help'')');
 if abort ~= 0
     warning('--> ERROR: Xilinx Vitis HLS not found or not working properly!')
     warning('    You cannnot generate VHDL code for implicit MPC controller without Xilinx Vitis HLS')
+    warning('    If Vitis HLS is installed, make sure that the installation folder is added to the PATH environment variable')
 else
     disp('Xilinx Vitis HLS ok.')
     disp(' ')
