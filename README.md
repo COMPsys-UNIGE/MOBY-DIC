@@ -30,6 +30,7 @@ The functionalities of **MOBY-DIC Toolbox** are:
 - Simulink (needed only to perform simulations)
 - Multi Parametric Toolbox 3 (only for explicit MPC, downloadable at https://www.mpt3.org/)
 - Xilinx Vitis HLS (only for generating VHDL code of implicit MPC)
+- Xilinx Model Composer and System Generator (only for hardware-in-the-loop simulations)
 - A supported compiler (needed only to recompile mex files, see below)
 
 ## Installation procedure
