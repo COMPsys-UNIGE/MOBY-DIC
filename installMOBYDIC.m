@@ -11,7 +11,7 @@ abort = false;
 if isempty(answ)
     disp('--> ERROR: MPT3 not found!')
     disp('    You can download MPT3 at the following link:')
-    disp('    http://control.ee.ethz.ch/~mpt/3/Main/Installation')
+    disp('    https://www.mpt3.org/')
     disp(' ')
     abort = true;
 end
@@ -25,7 +25,7 @@ try
 catch
     disp('--> ERROR: MPT3 not found or not working properly!')
     disp('    You can download MPT3 at the following link:')
-    disp('    http://control.ee.ethz.ch/~mpt/3/Main/Installation')
+    disp('    https://www.mpt3.org/')
     disp(' ')
     abort = true;
 end
