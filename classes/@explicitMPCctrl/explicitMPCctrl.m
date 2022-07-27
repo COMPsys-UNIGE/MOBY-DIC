@@ -121,6 +121,107 @@ classdef explicitMPCctrl < controller
                 
             elseif nargin == 1 || nargin == 4
                 
+                % Create an explicit MPC controller starting from the MPC
+                % controller generated with MATLAB MPC toolbox
+                % TO BE TESTED!
+                if isa(varargin{1},'mpc')
+                    
+                    mpcobj = varargin{1};
+                    if exist('varargin{2}')
+                        options = varargin{2};
+                    end
+
+                    nu = size(mpcobj.ManipulatedVariables, 2);
+                    nd = size(mpcobj.DisturbanceVariables, 2);
+
+                    A = mpcobj.model.Plant.A;
+                    B = mpcobj.model.Plant.B(:, 1 : nu);
+                    C = mpcobj.model.Plant.C;
+                    D = mpcobj.model.Plant.D(:, 1 : nu);
+                    Fx = mpcobj.model.Plant.B(:, nu + 1 : nu + nd);
+                    Fy = mpcobj.model.Plant.D(:, nu + 1 : nu + nd);
+
+                    nx = size(A, 2);
+                    ny = size(C, 1);
+                    np = 0;
+
+                    Ts = mpcobj.Ts;
+
+                    object.sys = ltiSys(nx, nu, ny, np, nd, 'dt', Ts);
+                    object.sys = object.sys.setMatrices('A', A);
+                    object.sys = object.sys.setMatrices('B', B);
+                    object.sys = object.sys.setMatrices('C', C);
+                    object.sys = object.sys.setMatrices('D', D);
+                    object.sys = object.sys.setMatrices('Fx', Fx);
+                    object.sys = object.sys.setMatrices('Fy', Fy);
+
+%                     for i = 1 : nx
+%                         xnames{i} = mpcobj.StateVariables(i).Name;
+%                     end
+%                     object.sys = object.sys.setStateNames(xnames);
+                    for i = 1 : nu
+                        unames{i} = mpcobj.ManipulatedVariables(i).Name;
+                        umin(i) = mpcobj.ManipulatedVariables(i).Min;
+                        umax(i) = mpcobj.ManipulatedVariables(i).Max;
+                    end
+                    object.sys = object.sys.setInputNames(unames);
+                    for i = 1 : ny
+                        ynames{i} = mpcobj.OutputVariables(i).Name;
+                        ymin(i) = mpcobj.OutputVariables(i).Min;
+                        ymax(i) = mpcobj.OutputVariables(i).Max;
+                    end
+                    object.sys = object.sys.setOutputNames(ynames);
+                    for i = 1 : nd
+                        dnames{i} = mpcobj.DisturbanceVariables(i).Name;
+                    end
+                    object.sys = object.sys.setUnmeasurableInputNames(dnames);
+
+                    N = mpcobj.PredictionHorizon;
+                    Nu = mpcobj.ControlHorizon;
+
+                    Q = diag(mpcobj.Weights.OutputVariables);
+
+                    if ~isstruct('options')
+                        options = [];
+                    end
+
+                    if ~isfield(options,'tracking') || isempty(options.tracking)
+                            options.tracking = true;
+                    end
+
+                    if ~isfield(options,'trackvariable') || isempty(options.trackvariable)
+                            options.trackvariable = 1:ny;
+                    end
+
+                    if options.tracking == 0
+                        R = diag(mpcobj.Weights.ManipulatedVariables);
+
+                        if ~isfield(options,'ref') || isempty(options.ref)
+                            options.ref = zeros(ny, 1);
+                        end
+                        if ~isfield(options,'uref') || isempty(options.uref)
+                            options.ref = zeros(nu, 1);
+                        end
+                    else
+                        R = diag(mpcobj.Weights.ManipulatedVariablesRate);
+                    end
+
+                    nr = ny;
+                    constr = constraints(nx, nu, ny, np, nd, nr, N);
+
+                    constr = constr.setConstraints('u', umin, umax);
+                    constr = constr.setConstraints('y', ymin, ymax);
+
+                    options.ctrlvariable = 'output';
+                    options.Q = Q;
+                    options.P = Q;
+                    options.R = R;
+                    options.N = N;
+                    options.Nu = Nu;
+
+                    object = explicitMPCctrl(object.sys, Ts, constr, options);
+                end
+
                 if isa(varargin{1},'MPCController')
                     
                     disp(' ')
