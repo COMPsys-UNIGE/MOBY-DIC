@@ -63,24 +63,34 @@ if ~exist('d','var')
     d = [];
 end
 
-if size(p,2) ~= object.np
+if size(p,2) ~= object.np && numel(p) ~= object.np
     error(['P must be a matrix with  ',num2str(object.np),' columns'])
 end
-if size(d,2) ~= object.nd
+if size(d,2) ~= object.nd && numel(d) ~= object.nd
     error(['D must be a matrix with  ',num2str(object.nd),' columns'])
 end
 
 % Number of points
 npts = size(x,1);
 
-if size(u,1) == 1
-    u = repmat(u,npts,1);
+if isempty(u)
+    u = zeros(npts,0);
 end
-if size(p,1) == 1
-    p = repmat(p,npts,1);
+if isempty(p)
+    p = zeros(npts,0);
 end
-if size(d,1) == 1
-    d = repmat(d,npts,1);
+if isempty(d)
+    d = zeros(npts,0);
+end
+
+if size(u,2) == 1 && numel(u) ~= npts
+    u = repmat(u',npts,1);
+end
+if size(p,2) == 1 && numel(p) ~= npts
+    p = repmat(p',npts,1);
+end
+if size(d,2) == 1 && numel(d) ~= npts
+    d = repmat(d',npts,1);
 end
 if size(u,1) ~= npts
     error(['U must be a matrix with either 1 or ',num2str(npts),' columns'])

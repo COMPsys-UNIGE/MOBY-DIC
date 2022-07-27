@@ -81,11 +81,11 @@ if numel(p) == 0
 end
 
 if size(p,2) == 1
-    p = repmat(p,size(p,1),npts);
+    p = repmat(p,size(p,2),npts);
 end
 
 if size(d,2) == 1
-    d = repmat(d,size(d,1),npts);
+    d = repmat(d,size(d,2),npts);
 end
 
 

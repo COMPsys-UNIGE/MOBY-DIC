@@ -65,32 +65,70 @@ function generateSimulinkModel(object,varargin)
 % 59 Temple Place, Suite 330,
 % Boston, MA  02111-1307  USA
 
-
+% Check input arguments
 if nargin == 1
-    folder = '';
-    simulateVHDL = false;
-    circuit_parameters = [];
+    opts = '';
+    cir_opts = '';
 elseif nargin == 2
-    folder = varargin{1};
-    simulateVHDL = false;
-    circuit_parameters = [];
+    opts = varargin{1};
+    cir_opts = '';
 elseif nargin == 3
-    folder = varargin{1};
-    simulateVHDL = varargin{2};
-    circuit_parameters = [];
-elseif nargin == 4
-    folder = varargin{1};
-    simulateVHDL = varargin{2};
-    circuit_parameters = varargin{3};
+    opts = varargin{1};
+    cir_opts = varargin{2};
 else
     error('Wrong number of input arguments');
 end
 
+if isempty(opts)
+    folder = '';
+elseif ~isfield(opts, 'folder')
+    folder = '';
+else
+    folder = opts.folder;
+end
+
+if isempty(opts)
+    simVHDL = 0;
+elseif ~isfield(opts, 'simVHDL')
+    simVHDL = 0;
+else
+    simVHDL = opts.simVHDL;
+end
+
+if ~isempty(cir_opts) && simVHDL == 0
+    warning('Argument CIR_OPTS is ignored since OPTS.simVHDL = 0');
+end
 
 if ~ischar(folder)
     error('OPTS.folder must be a string');
 end
 
+% if nargin == 1
+%     folder = '';
+%     simulateVHDL = false;
+%     circuit_parameters = [];
+% elseif nargin == 2
+%     folder = varargin{1};
+%     simulateVHDL = false;
+%     circuit_parameters = [];
+% elseif nargin == 3
+%     folder = varargin{1};
+%     simulateVHDL = varargin{2};
+%     circuit_parameters = [];
+% elseif nargin == 4
+%     folder = varargin{1};
+%     simulateVHDL = varargin{2};
+%     circuit_parameters = varargin{3};
+% else
+%     error('Wrong number of input arguments');
+% end
+% 
+% 
+% if ~ischar(folder)
+%     error('OPTS.folder must be a string');
+% end
+
+% Create a folder
 if ~isempty(folder)
     % Add \ at the end of the folder name
     if strcmp(folder(end),'\')
@@ -113,12 +151,41 @@ else
     end
 end
 
-circuit_parameters.folder = [folder,'/VHDLfile'];
+cir_opts.folder = [folder,'VHDLfile'];
 
 options.simulinkFolder = getsimulinkpath();
 options.folder = folder;
-options.simulateVHDL = simulateVHDL;
-options.circuit_parameters = circuit_parameters;
+options.simulateVHDL = simVHDL;
+options.circuit_parameters = cir_opts;
+
+% if ~isempty(folder)
+%     % Add \ at the end of the folder name
+%     if strcmp(folder(end),'\')
+%         folder(end) = '/';
+%     elseif ~strcmp(folder(end),'/')
+%         folder = [folder,'/'];
+%     end
+% else
+%     % Choose automatically a folder name
+%     created = 0;
+%     i = 1;
+%     while ~created
+%         testfolder = [pwd,'/model_',num2str(i),'/'];
+%         if ~exist(testfolder,'dir')
+%             folder = testfolder;
+%             created = 1;
+%         else
+%             i = i+1;
+%         end
+%     end
+% end
+% 
+% circuit_parameters.folder = [folder,'/VHDLfile'];
+% 
+% options.simulinkFolder = getsimulinkpath();
+% options.folder = folder;
+% options.simulateVHDL = simulateVHDL;
+% options.circuit_parameters = circuit_parameters;
 
 % Simulation of continuous-time system
 if object.isContinuousTime

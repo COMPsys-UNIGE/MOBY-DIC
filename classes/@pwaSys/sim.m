@@ -165,7 +165,9 @@ if object.np == 0
     p = zeros(1,object.np);
 else
     
-    p = p(:)';
+    if size(p,2) > 1
+        p = p(:)';
+    end
     
     if numel(p) ~= object.np
         error(['p must be a vector with ',num2str(object.np),' elements']);
@@ -179,8 +181,9 @@ if object.nd == 0
     end
     d = zeros(1,object.nd);
 else
-    
-    d = d(:)';
+    if size(d,2) > 1
+        d = d(:)';
+    end
     
     if numel(d) ~= object.nd
         error(['d must be a vector with ',num2str(object.nd),' elements']);
