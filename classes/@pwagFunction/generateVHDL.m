@@ -170,54 +170,54 @@ umax = max(evalV');
 range.umin = umin(idx);
 range.umax = umax(idx);
 
-% umin = repmat(Inf,nfun,1);
-% umax = repmat(-Inf,nfun,1);
-% 
-% for i=1:object.getNumberOfRegions
-%     r = object.getRegions(i);
-%     Ri = Polyhedron(r.H,r.K);
-%     vertici = Ri.V;
-%     for j=1:nfun
-%         umin(i) = min([umin(i),r.F(i,:)*vertici'+r.G(i)]);
-%         umax(i) = max([umax(i),r.F(i,:)*vertici'+r.G(i)]);
-%     end
-% end
-% 
-% range.umin = umin(idx)';
-% range.umax = umax(idx)';
-% 
-% if isfield(circuit_parameters,'range')
-%     if isfield(circuit_parameters.range,'xmax')
-%         if numel(circuit_parameters.range.xmax) == 1
-%           range.xmax = repmat(circuit_parameters.range.xmax,ndim,1);
-%         else
-%           range.xmax = circuit_parameters.range.xmax;
-%         end ;
-%     end
-%     if isfield(circuit_parameters.range,'xmin')
-%         if numel(circuit_parameters.range.xmin) == 1
-%           range.xmin = repmat(circuit_parameters.range.xmin,ndim,1);
-%         else
-%           range.xmin = circuit_parameters.range.xmin;
-%         end ;
-%     end
-% 
-%     if isfield(circuit_parameters.range,'umax')
-%         if numel(circuit_parameters.range.umax) == 1
-%           range.umax = repmat(circuit_parameters.range.umax,nu,1);
-%         else
-%           range.umax = circuit_parameters.range.umax;
-%         end ;
-%     end
-%     if isfield(circuit_parameters.range,'umin')
-%         if numel(circuit_parameters.range.umin) == 1
-%           range.umin = repmat(circuit_parameters.range.umin,nu,1);
-%         else
-%           range.umin = circuit_parameters.range.umin;
-%         end ;
-%     end
-% 
-% end
+umin = repmat(Inf,nfun,1);
+umax = repmat(-Inf,nfun,1);
+
+for i=1:object.getNumberOfRegions
+    r = object.getRegions(i);
+    Ri = Polyhedron(r.H,r.K);
+    vertici = Ri.V;
+    for j=1:nfun
+        umin(j) = min([umin(j),r.F(j,:)*vertici'+r.G(j)]);
+        umax(j) = max([umax(j),r.F(j,:)*vertici'+r.G(j)]);
+    end
+end
+
+range.umin = umin(idx)';
+range.umax = umax(idx)';
+
+if isfield(circuit_parameters,'range')
+    if isfield(circuit_parameters.range,'xmax')
+        if numel(circuit_parameters.range.xmax) == 1
+          range.xmax = repmat(circuit_parameters.range.xmax,ndim,1);
+        else
+          range.xmax = circuit_parameters.range.xmax;
+        end ;
+    end
+    if isfield(circuit_parameters.range,'xmin')
+        if numel(circuit_parameters.range.xmin) == 1
+          range.xmin = repmat(circuit_parameters.range.xmin,ndim,1);
+        else
+          range.xmin = circuit_parameters.range.xmin;
+        end ;
+    end
+
+    if isfield(circuit_parameters.range,'umax')
+        if numel(circuit_parameters.range.umax) == 1
+          range.umax = repmat(circuit_parameters.range.umax,nu,1);
+        else
+          range.umax = circuit_parameters.range.umax;
+        end ;
+    end
+    if isfield(circuit_parameters.range,'umin')
+        if numel(circuit_parameters.range.umin) == 1
+          range.umin = repmat(circuit_parameters.range.umin,nu,1);
+        else
+          range.umin = circuit_parameters.range.umin;
+        end ;
+    end
+
+end
 
 
 % Read circuit_parameters structure
