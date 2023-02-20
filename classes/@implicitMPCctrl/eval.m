@@ -116,20 +116,12 @@ else
     algorithm = "";
 end
 
-% Number of points x
-npoints = size(x,2);
-
-% If only one parameter or unmeasurable input is provided, it is replicated
-% for each x
-if size(p,2) == 1
-    p = repmat(p,1,npoints);
-end
-if size(d,2) == 1
-    d = repmat(d,1,npoints);
-end
-if object.tracking
-    if size(ref,2) == 1
-        ref = repmat(ref,1,npoints);
+if isfield(object.options, 'trajectoryTracking')
+    trajTrack = object.options.trajectoryTracking;
+    if ~trajTrack
+        ref = repmat(ref(:,1),1,N+1);
+    elseif size(ref,2) < N+1
+        ref = [ref, repmat(ref(:,end),1,N+1-size(ref,2))];
     end
 end
 
@@ -138,21 +130,11 @@ nptp = size(p,2);
 nptd = size(d,2);
 nptref = size(ref,2);
 
-if ~isempty(p)
-    if nptp ~= npoints
-        error(['p must be a matrix with either 1 or ',num2str(npoints),' columns'])
-    end
-end
-if ~isempty(d)
-    if nptd ~= npoints
-        error(['d must be a matrix with either 1 or ',num2str(npoints),' columns'])
-    end
-end
-if ~isempty(ref)
-    if nptref ~= npoints
-        error(['ref must be a matrix with either 1 or ',num2str(npoints),' columns'])
-    end
-end
+% if ~isempty(ref)
+%     if nptref ~= npoints
+%         error(['ref must be a matrix with either 1 or ',num2str(npoints),' columns'])
+%     end
+% end
 
 % Define matrices of QP
 if object.options.tracking
@@ -212,9 +194,31 @@ catch
     error('The problem is infeasible, try to consider soft constraints on state variables.');
 end
 
+% Force constraints on input
 if object.options.tracking
     u = u + uOld;
+    [Hu, Ku] = object.constr.getInputConstraints(0);
+    for i = 1:numel(Ku)
+        if Hu(i,:)*u > Ku(i)
+            ux = Ku(i)./Hu(i,:);
+            if any(ux == Inf)
+                ux(ux == Inf) = u;
+            end
+            u = ux;
+        end
+    end
     uOld = u;
+else
+    [Hu, Ku] = object.constr.getInputConstraints(0);
+    for i = 1:numel(Ku)
+        if Hu(i,:)*u > Ku(i)
+            ux = Ku(i)./Hu(i,:);
+            if any(ux == Inf)
+                ux(ux == Inf) = u;
+            end
+            u = ux;
+        end
+    end
 end
 
 end

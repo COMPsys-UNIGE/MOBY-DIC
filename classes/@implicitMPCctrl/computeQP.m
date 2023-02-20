@@ -94,11 +94,11 @@ end
 
 % Reference state or output
 if strcmpi(object.ctrlvar,'state')
-    xref = zeros(nx,1);
     if ~object.options.tracking
         xref = object.ref;
     else
-        xref(object.options.trackvariable) = ref;
+        xref = zeros(nx,size(ref,2));
+        xref(object.options.trackvariable,:) = ref;
     end
 else
     yref = zeros(ny,1);
@@ -155,30 +155,51 @@ ineqR = [];
 for i = 1:N
     
     try
-        if i < Nu + 1
+        if i < Nu+1
+            firstRow = length(ineqR) + 1;
             [~, ineqR_tmp] = object.constr.getInputConstraints(i-1); 
             ineqR = [ineqR; ineqR_tmp];
+            lastRow = length(ineqR);
+            
+            
+            if object.options.tracking
+                try
+            %             ineqL(length(K{i})*(i-1)+1:length(K{i})*(i-1)+2*nu, i) = H{i}(:, nx-nu+1:nx);
+                    [ineqL(firstRow:lastRow, (i-1)*nu + 1), ~] = object.constr.getInputConstraints(i-1);
+                    [ineqL(firstRow:lastRow, Nu*nu + i*nx - nu + 1 : Nu*nu + i*nx), ~] = object.constr.getInputConstraints(i-1);
+                catch
+                    ineqL(firstRow:lastRow, (i-1)*nu + 1) = 0;
+                    ineqL(firstRow:lastRow, Nu*nu + i*nx - nu + 1 : Nu*nu + i*nx) = 0;
+                end
+            else
+                try
+            %             ineqL(length(K{i})*(i-1)+1:length(K{i})*(i-1)+2*nu, i) = H{i}(:, nx+1:nx+nu);
+                    [ineqL(firstRow:lastRow:length(K{i})*(i-1)+2*nu, i), ~] = object.constr.getInputConstraints(i-1);
+                catch
+                    ineqL(firstRow:lastRow:length(K{i})*(i-1)+2*nu, i) = 0;
+                end
+            end
         end
     catch
     end
         
     try
-        l0R = length(ineqR);
+        firstRow = length(ineqR) + 1;
         [~, ineqR_tmp] = object.constr.getStateConstraints(i-1); 
         ineqR = [ineqR; ineqR_tmp];
-        l1R = length(ineqR);
+        lastRow = length(ineqR);
 
         if object.options.tracking
             try
-                ineqL(l0R+1:l1R, Nu*nu + (i-1)*nx + 1 : Nu*nu + i*nx - nu) = H{i}(any((H{i}(:, 1:nx-nu)), 2), 1:nx-nu);
+                ineqL(firstRow:lastRow, Nu*nu + (i-1)*nx + 1 : Nu*nu + i*nx - nu) = H{i}(any((H{i}(:, 1:nx-nu)), 2), 1:nx-nu);
     %             ineqL(length(cell2mat(K(1:i-1)))+1:length(cell2mat(K(1:i))), Nu*nu + i*nx -nu + 1 : Nu*nu + i*nx) = H{i}(:, nx-nu+1:nx);
             catch
-%                 ineqL(l0R+1:l1R, Nu*nu + (i-1)*nx + 1 : Nu*nu + i*nx) = 0;
+%                 ineqL(firstRow+1:lastRow, Nu*nu + (i-1)*nx + 1 : Nu*nu + i*nx) = 0;
             end
         else
             try
                 if any(H{i}(:, 1:nx))
-                    ineqL(l0R+1:l1R, Nu*nu + (i-1)*nx + 1 : Nu*nu + i*nx) = H{i}(any((H{i}(:, 1:nx)), 2), 1:nx);
+                    ineqL(firstRow:lastRow, Nu*nu + (i-1)*nx + 1 : Nu*nu + i*nx) = H{i}(any((H{i}(:, 1:nx)), 2), 1:nx);
     %             else
     %                ineqL(length(cell2mat(K(1:i)))+1:length(cell2mat(K(1:i+1))), Nu*nu + (i-1)*nx + 1 : Nu*nu + i*nx) = 0;
                 end
@@ -193,25 +214,25 @@ end
 % ineqL = zeros(numel(ineqR), Nu*nu + N*nx);
 ineqL = [ineqL, zeros(size(ineqL,1), Nu*nu + (N+1)*nx - size(ineqL,2))];
 
-for i = 1:Nu
-    if object.options.tracking
-        try
-%             ineqL(length(K{i})*(i-1)+1:length(K{i})*(i-1)+2*nu, i) = H{i}(:, nx-nu+1:nx);
-            [ineqL(length(K{i})*(i-1)+1:length(K{i})*(i-1)+2*nu, i), ~] = object.constr.getInputConstraints(i-1);
-            [ineqL(length(K{i})*(i-1)+1:length(K{i})*(i-1)+2*nu, Nu*nu + i*nx - nu + 1 : Nu*nu + i*nx), ~] = object.constr.getInputConstraints(i-1);
-        catch
-            ineqL(length(K{i})*(i-1)+1:length(K{i})*(i-1)+2*nu, i) = 0;
-            ineqL(length(K{i})*(i-1)+1:length(K{i})*(i-1)+2*nu, Nu*nu + i*nx - nu + 1 : Nu*nu + i*nx) = 0;
-        end
-    else
-        try
-%             ineqL(length(K{i})*(i-1)+1:length(K{i})*(i-1)+2*nu, i) = H{i}(:, nx+1:nx+nu);
-            [ineqL(length(K{i})*(i-1)+1:length(K{i})*(i-1)+2*nu, i), ~] = object.constr.getInputConstraints(i-1);
-        catch
-            ineqL(length(K{i})*(i-1)+1:length(K{i})*(i-1)+2*nu, i) = 0;
-        end
-    end
-end
+% for i = 1:Nu
+%     if object.options.tracking
+%         try
+% %             ineqL(length(K{i})*(i-1)+1:length(K{i})*(i-1)+2*nu, i) = H{i}(:, nx-nu+1:nx);
+%             [ineqL(length(K{i})*(i-1)+1:length(K{i})*(i-1)+2*nu, i), ~] = object.constr.getInputConstraints(i-1);
+%             [ineqL(length(K{i})*(i-1)+1:length(K{i})*(i-1)+2*nu, Nu*nu + i*nx - nu + 1 : Nu*nu + i*nx), ~] = object.constr.getInputConstraints(i-1);
+%         catch
+%             ineqL(length(K{i})*(i-1)+1:length(K{i})*(i-1)+2*nu, i) = 0;
+%             ineqL(length(K{i})*(i-1)+1:length(K{i})*(i-1)+2*nu, Nu*nu + i*nx - nu + 1 : Nu*nu + i*nx) = 0;
+%         end
+%     else
+%         try
+% %             ineqL(length(K{i})*(i-1)+1:length(K{i})*(i-1)+2*nu, i) = H{i}(:, nx+1:nx+nu);
+%             [ineqL(length(K{i})*(i-1)+1:length(K{i})*(i-1)+2*nu, i), ~] = object.constr.getInputConstraints(i-1);
+%         catch
+%             ineqL(length(K{i})*(i-1)+1:length(K{i})*(i-1)+2*nu, i) = 0;
+%         end
+%     end
+% end
 
 % for i = 1:N-1
 % 
@@ -307,10 +328,12 @@ if strcmpi(object.ctrlvar,'state')
     for i=1:nu:Nu*nu
         QP2(i:i+nu-1) = -2.*R*uref;
     end
+    j=1;
     for i=Nu*nu+1:nx:Nu*nu+(N+1)*nx-nx
-        QP2(i:i+nx-1) = -2.*Q*xref;
+        QP2(i:i+nx-1) = -2.*Q*xref(:,j);
+        j=j+1;
     end
-    QP2(end-nx+1:end) = -2.*P*xref;
+    QP2(end-nx+1:end) = -2.*P*xref(:,j);
 
     % QP equality constraints
     eqConB = zeros((N+1)*nx, Nu*nu);
