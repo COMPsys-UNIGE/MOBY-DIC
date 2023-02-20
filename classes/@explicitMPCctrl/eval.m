@@ -121,8 +121,8 @@ if size(d,2) == 1
     d = repmat(d,1,npoints);
 end
 if object.tracking
-    if size(ref,2) == 1
-        ref = repmat(ref,1,npoints);
+    if size(ref,2) == 1 || size(ref,2) ~= npoints
+        ref = repmat(ref(:,1),1,npoints);
     end
 end
 
