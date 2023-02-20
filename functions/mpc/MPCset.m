@@ -261,4 +261,10 @@ if isfield(options,'algorithm')
     end
 end
 
+if ~isfield(options,'trajectoryTracking')
+    optout.trajectoryTracking = false;
+else
+    optout.trajectoryTracking = options.trajectoryTracking;
+end
+
 end
