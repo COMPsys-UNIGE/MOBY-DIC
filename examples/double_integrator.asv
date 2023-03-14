@@ -46,10 +46,9 @@ Ts = 1;
 N = 5;  % Prediction horizon
 Nu = 3; % Control horizon
 
-% MPC weight matrices
-P = [ 1, 0; 0, 0 ];
-Q = [ 1, 0; 0, 0 ];
-R = 10;
+P = [ 1, 0; 0, 0 ];  % MPC weight matrix
+Q = [ 1, 0; 0, 0 ];  % MPC weight matrix
+R = 10;              % MPC weight matrix
 
 % Constraints
 xmin = [ -8, -1 ];
@@ -121,10 +120,10 @@ ctSysReg = ctsys.setController(ctrl);
 % Define an initial condition 
 x0 = [ 0; 0 ];
 
-% Define a reference position
+% Define  as reference position
 sref = 5;
 
-% Set a simulation time
+% Set  as simulation time
 T = 30;
 
 % Set constraints for simulation
@@ -139,7 +138,7 @@ ctSysReg.simplot(T, x0, sref, opts);
 % Select the observer type (predictor or filter)
 obsType = "predictor";
 
-% Observer sampling time
+% Observer sampling
 Tobs = 0.5;
 
 % Noise covariance matrices
@@ -158,6 +157,7 @@ end
 
 % Associate observer to LTI system
 ctSysObs = ctSysReg.setObserver(obs);
+
 
 %% Closed-loop simulation with MPC controller and observer
 

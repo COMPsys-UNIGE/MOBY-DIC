@@ -1,0 +1,37 @@
+-------------------------------------------------------------
+|                Circuit information report                  |
+-------------------------------------------------------------
+
+INPUTS
+	 - Resolution: 12 bits
+	 - Representation: unsigned
+	 - Range (model --> circuit):
+		i: [-10000.000000 10000.000000] --> x1: [000000000000 111111111111]
+		vout: [-8243.473010 10000.000000] --> x2: [000000000000 111111111111]
+		iout: [0.000000 4.000000] --> p1: [000000000000 111111111111]
+		vout reference: [-10000.000000 10000.000000] --> x2_ref: [000000000000 111111111111]
+
+OUTPUTS
+	 - Resolution: 12 bits
+	 - Representation: unsigned
+	 - Range (model --> circuit):
+		d: [-0.614179 6.425814] --> y1: [000000000000 111111111111]
+
+COEFFICIENTS
+	 - Resolution: 12 bits
+
+FREQUENCY:
+	 - Working frequency = 50.000000 MHz
+
+TIMINGS:
+	 - Latency = 180.00 ns (9 clock cycles)
+	 - Sampling time = 33.33 us (1.666667e+03 clock cycles)
+
+
+RESOURCES
+	 - Multiplier(s) = 5 (12 x 12 bits)
+
+MEMORY SIZE
+	 - Number of cells = 10000
+	 - Word size = 12 bits
+	 - Total occupation = 15000.000 bytes
