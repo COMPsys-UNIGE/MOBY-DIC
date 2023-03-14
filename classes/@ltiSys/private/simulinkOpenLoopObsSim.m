@@ -227,6 +227,19 @@ if strcmpi(choice,'Overwrite')
     set_param([model, '/Monitor xest'], 'BackgroundColor', 'Cyan');
     set_param([model, '/Monitor xest'], 'DataLoggingDecimateData', 'On','DataLoggingDecimation', '1', 'DataLogging', 'On', 'DataLoggingVariableName', 'res_Xest', 'DataLoggingSaveFormat', 'Structure With Time');
     
+    % reset the lastwarn message and id
+    lastwarn('', '');
+    % try generating a System Generator token
+    if simulateVHDL           
+        add_block('sysgenController/ System Generator', [model, '/ System Generator']);
+    end
+    % check if a warning was raised
+    [~, warnId] = lastwarn();
+    if ~isempty(warnId)
+        simulateVHDL = 0;
+        warndlg('Xilinx System Generator is not properly installed. A Simulink model will be generated.');
+    end
+
     %% Observer generation
     if ~simulateVHDL
         % Save .mat files with the matrices
@@ -448,8 +461,8 @@ if strcmpi(choice,'Overwrite')
         
         preFolder = ['circuit_model/',circuit_parameters.inputRepresentation,'_in/'];
         
-        % Add System Generator token
-        add_block('sysgenController/ System Generator', [model, '/ System Generator']);
+%         % Add System Generator token
+%         add_block('sysgenController/ System Generator', [model, '/ System Generator']);
 
         % Add black box
         add_block('sysgenController/Controller', [model, '/Observer']);

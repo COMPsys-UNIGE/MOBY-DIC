@@ -236,6 +236,19 @@ if strcmpi(choice,'Overwrite')
     set_param([model, '/Monitor y'], 'DataLoggingDecimateData', 'On','DataLoggingDecimation', '1', 'DataLogging', 'On', 'DataLoggingVariableName', 'res_Y', 'DataLoggingSaveFormat', 'Structure With Time');
     add_line(model, 'LTI System/1', 'Monitor x/1', 'autorouting', 'smart');
     add_line(model, 'LTI System/2', 'Monitor y/1', 'autorouting', 'smart');
+
+    % reset the lastwarn message and id
+    lastwarn('', '');
+    % try generating a System Generator token
+    if simulateVHDL           
+        add_block('sysgenController/ System Generator', [model, '/ System Generator']);
+    end
+    % check if a warning was raised
+    [~, warnId] = lastwarn();
+    if ~isempty(warnId)
+        simulateVHDL = 0;
+        warndlg('Xilinx System Generator is not properly installed. A Simulink model will be generated.');
+    end
     
     if ~simulateVHDL
         
@@ -573,8 +586,8 @@ if strcmpi(choice,'Overwrite')
                 'sim_p_scale_gain','sim_p_scale_bias','sim_d_scale_gain','sim_d_scale_bias',...
                 'sim_xref_scale_gain','sim_xref_scale_bias','sim_y_scale_gain','sim_y_scale_bias');
 
-        % Add System Generator token
-        add_block('sysgenController/ System Generator', [model, '/ System Generator']);
+%         % Add System Generator token
+%         add_block('sysgenController/ System Generator', [model, '/ System Generator']);
 
         % Add black box
         add_block('sysgenController/Controller', [model, '/Embedded System']);

@@ -330,8 +330,10 @@ if strcmpi(object.ctrlvar,'state')
     end
     j=1;
     for i=Nu*nu+1:nx:Nu*nu+(N+1)*nx-nx
+        if size(xref,2) > j
+            j = j+1;
+        end
         QP2(i:i+nx-1) = -2.*Q*xref(:,j);
-        j=j+1;
     end
     QP2(end-nx+1:end) = -2.*P*xref(:,j);
 

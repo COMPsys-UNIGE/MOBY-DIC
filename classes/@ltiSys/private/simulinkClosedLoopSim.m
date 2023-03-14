@@ -228,6 +228,20 @@ if strcmpi(choice,'Overwrite')
     
     %% Controller generation
     if object.hasController()
+
+        % reset the lastwarn message and id
+        lastwarn('', '');
+        % try generating a System Generator token
+        if options.simulateVHDL           
+            add_block('sysgenController/ System Generator', [model, '/ System Generator']);
+        end
+        % check if a warning was raised
+        [~, warnId] = lastwarn();
+        if ~isempty(warnId)
+            options.simulateVHDL = 0;
+            warndlg('Xilinx System Generator is not properly installed. A Simulink model will be generated.');
+        end
+
         % Generate a Simulink subsystem for the controller
         if ~options.simulateVHDL
             add_block('simulink/Ports & Subsystems/Subsystem', [model, '/Controller']);
@@ -414,8 +428,8 @@ if strcmpi(choice,'Overwrite')
                 'sim_p_scale_gain','sim_p_scale_bias','sim_d_scale_gain','sim_d_scale_bias',...
                 'sim_xref_scale_gain','sim_xref_scale_bias');
             
-            % Add System Generator token
-            add_block('sysgenController/ System Generator', [model, '/ System Generator']);
+%             % Add System Generator token
+%             add_block('sysgenController/ System Generator', [model, '/ System Generator']);
             
             % Add black box
             add_block('sysgenController/Controller', [model, '/Controller']);
