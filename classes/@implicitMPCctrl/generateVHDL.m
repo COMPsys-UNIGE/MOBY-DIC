@@ -1212,7 +1212,7 @@ evalc('status = system(''vitis_hls -f TCLscript.tcl'')');
 cd ..
 
 if status ~= 0
-    warning('ERROR: Vitis HLS not found or not working properly!')
+    warndlg(['ERROR: Vitis HLS not found or not working properly!',newline,'C++ files are ready for high-level synthesis.'])
 else
     % Copy VHDL files generated with HLS synthesis
     copyfile((strcat(folder, '/HLSproject/solution1/syn/vhdl/*.vhd')),(strcat(folder, '/vhdl')));

@@ -1,0 +1,27 @@
+-------------------------------------------------------------
+|                Circuit information report                  |
+-------------------------------------------------------------
+
+INPUTS
+	 - Resolution: 12 bits
+	 - Representation: unsigned
+	 - Range (model --> circuit):
+		s: [-8.000000 8.000000] --> x1: [000000000000 111111111111]
+		v: [-1.000000 1.000000] --> x2: [000000000000 111111111111]
+		s reference: [-8.000000 8.000000] --> x1_ref: [000000000000 111111111111]
+
+OUTPUTS
+	 - Resolution: 12 bits
+	 - Representation: unsigned
+	 - Range (model --> circuit):
+		a: [-0.300000 0.300000] --> y1: [000000000000 111111111111]
+
+COEFFICIENTS
+	 - Resolution: 18 bits
+	 - Integer part: 6 bits
+
+FREQUENCY:
+	 - Working frequency = 100.000000 kHz
+
+-------------------------------------------------------------
+Check 'HLS_synthesis_report.rpt' for latency and area occupation.
