@@ -65,12 +65,12 @@ Nc = 1;
 % Constraints
 imin = 0;              % minimum inductor current
 imax = 3;              % maximum inductor current
-voutmin = 0;           % minimum output voltage
-voutmax = vin;         % maximum output voltage
+voutmin = -0.1;        % minimum output voltage
+voutmax = 3.75;        % maximum output voltage
 dmin = 0.2;            % minimum duty cycle
 dmax = 0.8;            % maximum duty cycle
 ioutmin = 0;           % minimum load current
-ioutmax = 4;           % maximum load current
+ioutmax = 4.5;         % maximum load current
 xmin = [imin voutmin]; % state bounds
 xmax = [imax voutmax]; % state bounds
 umin = dmin;           % input bounds
@@ -89,11 +89,13 @@ constr = constr.setConstraints('u', umin, umax, 0);
 % Set hard state constraints
 H = [[1, -umax/(2*f*L), 0], zeros(1,np+ny+nxref)];
 K = xmax(1) - (umax/(2*f*L))*vin;
-constr = constr.setConstraints(H, K, Nc);
+constr = constr.setConstraints(H, K, 1);
 
 % Explicit MPC requires box constraints on every variable
 constr = constr.setConstraints('r', rmin, rmax, 0);
 constr = constr.setConstraints('p', pmin, pmax, 0);
+constr = constr.setConstraints('x1', xmin(1), xmax(1), 0);
+constr = constr.setConstraints('x2', xmin(2), xmax(2), 0);
 
 % MPC weight matrices
 P = [ 0, 0; 0, 2 ];
@@ -116,8 +118,7 @@ options = struct( ...
     );
 
 % Design controller
-switch mpcType
-    
+switch mpcType    
     case "explicit"
         ctrl = explicitMPCctrl(ctsys, Ts, constr, options);
         
