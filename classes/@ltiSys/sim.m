@@ -52,6 +52,7 @@ function signals = sim(object,T,x0,varargin)
 %
 % Alberto Oliveri (alberto.oliveri@unige.it)
 % Matteo Lodi (matteo.lodi@edu.unige.it)
+% Alessandro Ravera (alessandro.ravera@edu.unige.it)
 %
 % Copyright (C) 2016 University of Genoa, Italy.
 

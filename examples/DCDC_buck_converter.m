@@ -9,7 +9,7 @@ Cap = 1320e-6; % capacitance [F]
 vd = 0.9;      % diode forward voltage [V]
 f = 30e3;      % switching frequency
 
-% Define system matrices
+% Define system matrices of the linear averaged model
 A = [-RL/L, -1/L; 1/Cap, 0];
 B = -[(vin + vd)/L; 0];
 C = [0, 1];

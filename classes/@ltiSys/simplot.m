@@ -23,6 +23,7 @@ function signals = simplot(object,T,x0,varargin)
 %
 % Alberto Oliveri (alberto.oliveri@unige.it)
 % Matteo Lodi (matteo.lodi@edu.unige.it)
+% Alessandro Ravera (alessandro.ravera@edu.unige.it)
 %
 % Copyright (C) 2016 University of Genoa, Italy.
 
@@ -84,12 +85,7 @@ if ~isempty(signals.time)
             N = constr.getTimeHorizon();
             if N >= 1
                 [H, K] = constr.getAllConstraints('hard',1);
-                [Hs, Ks] = constr.getAllConstraints('soft',1);
-%                 if nxref ~= 0
-%                     H = [H zeros(size(H,1),length(signals.ref))];
-%                     K = [K zeros(size(K,1),length(signals.ref))];
-%                 end
-                
+                [Hs, Ks] = constr.getAllConstraints('soft',1);                
             else
                 H = [];
                 K = [];
@@ -108,6 +104,7 @@ if ~isempty(signals.time)
         figure('Name','System states')
         for i = 1:nx
             subplot(nx,1,i)
+            legend show
             hold on
             
             if ~isempty(H)
@@ -140,7 +137,7 @@ if ~isempty(signals.time)
                                 signals.output...
                                 repmat(signals.ref(:,end)',npts,1)]*Hrightp')./...
                                 repmat(Hleftp',npts,1);
-                            plot(signals.time,min(up,[],2),'k')
+                            plot(signals.time,min(up,[],2),'k','DisplayName','hard constraint')
                         else
                             up = (repmat(Krightp',npts,1)-...
                                 [signals.state(:,setdiff(1:nx,i))...
@@ -149,7 +146,7 @@ if ~isempty(signals.time)
                                 repmat(signals.unmeasurable_input',npts,1)...
                                 signals.output]*Hrightp')./...
                                 repmat(Hleftp',npts,1);
-                            plot(signals.time,min(up,[],2),'k')
+                            plot(signals.time,min(up,[],2),'k','DisplayName','hard constraint')
                         end
                         
                     end
@@ -163,7 +160,7 @@ if ~isempty(signals.time)
                                 signals.output...
                                 repmat(signals.ref(:,end)',npts,1)]*Hrightn')./...
                                 repmat(Hleftn',npts,1);
-                            plot(signals.time,max(down,[],2),'k')
+                            plot(signals.time,max(down,[],2),'k','DisplayName','hard constraint')
                         else
                             down = (repmat(Krightn',npts,1)-...
                                 [signals.state(:,setdiff(1:nx,i))...
@@ -172,7 +169,7 @@ if ~isempty(signals.time)
                                 repmat(signals.unmeasurable_input',npts,1)...
                                 signals.output]*Hrightn')./...
                                 repmat(Hleftn',npts,1);
-                            plot(signals.time,max(down,[],2),'k')
+                            plot(signals.time,max(down,[],2),'k','DisplayName','hard constraint')
                         end
                         
                     end
@@ -208,7 +205,7 @@ if ~isempty(signals.time)
                                 signals.output...
                                 repmat(signals.ref(:,end)',npts,1)]*Hsrightp')./...
                                 repmat(Hsleftp',npts,1);
-                            plot(signals.time,min(up,[],2),'--k')
+                            plot(signals.time,min(up,[],2),'--k','DisplayName','soft constraint')
                         else
                             up = (repmat(Ksrightp',npts,1)-...
                                 [signals.state(:,setdiff(1:nx,i))...
@@ -217,7 +214,7 @@ if ~isempty(signals.time)
                                 repmat(signals.unmeasurable_input',npts,1)...
                                 signals.output]*Hsrightp')./...
                                 repmat(Hsleftp',npts,1);
-                            plot(signals.time,min(up,[],2),'--k')
+                            plot(signals.time,min(up,[],2),'--k','DisplayName','soft constraint')
                         end
                     end
                     if ~isempty(Ksrightn)
@@ -230,7 +227,7 @@ if ~isempty(signals.time)
                                 signals.output...
                                 repmat(signals.ref(:,end)',npts,1)]*Hsrightn')./...
                                 repmat(Hsleftn',npts,1);
-                            plot(signals.time,max(down,[],2),'--k')
+                            plot(signals.time,max(down,[],2),'--k','DisplayName','soft constraint')
                         else
                             down = (repmat(Ksrightn',npts,1)-...
                                 [signals.state(:,setdiff(1:nx,i))...
@@ -239,17 +236,16 @@ if ~isempty(signals.time)
                                 repmat(signals.unmeasurable_input',npts,1)...
                                 signals.output]*Hsrightn')./...
                                 repmat(Hsleftn',npts,1);
-                            plot(signals.time,max(down,[],2),'--k')
+                            plot(signals.time,max(down,[],2),'--k','DisplayName','soft constraint')
                         end
                     end
                 end
             end
             
-            plot(signals.time,signals.state(:,i),'b')
+            plot(signals.time,signals.state(:,i),'b','DisplayName','state')
             if object.hasObserver()
-                plot(signals.time,signals.est_state(:,i),'r')
-                legend('real','estimated')
-            end
+                plot(signals.time,signals.est_state(:,i),'r','DisplayName','estimated state')
+            end            
             if object.hasController
                 ctrl = object.getController();
                 if ctrl.isTracking
@@ -257,7 +253,7 @@ if ~isempty(signals.time)
                         trackvar = ctrl.getTrackingVariable();
                         idx = find(trackvar == i);
                         if ~isempty(idx) && signals.ref(idx,end) ~= signals.ref(idx,end)
-                            plot([signals.time(1) signals.time(end)],[signals.ref(idx) signals.ref(idx)],'c')
+                            plot([signals.time(1) signals.time(end)],[signals.ref(idx) signals.ref(idx)],'c','DisplayName','reference state')
                         end
                     end
                 end
@@ -281,10 +277,11 @@ if ~isempty(signals.time)
                 figure('Name','Unmeasurable inputs')
                 for i = 1:nd
                     subplot(nd,1,i)
+                    legend show
                     hold on
                     plot([signals.time(1) signals.time(end)],...
-                        [signals.unmeasurable_input(i) signals.unmeasurable_input(i)],'b')
-                    plot(signals.time,signals.est_state(:,nx+i),'r')
+                        [signals.unmeasurable_input(i) signals.unmeasurable_input(i)],'b','DisplayName','unmeasurable input')
+                    plot(signals.time,signals.est_state(:,nx+i),'r','DisplayName','estimated unmeasurable input')
                     xlabel('t')
                     ylabel(dnames{i})
                     grid on
@@ -311,6 +308,7 @@ if ~isempty(signals.time)
         figure('Name','System inputs')
         for i = 1:nu
             subplot(nu,1,i)
+            legend show
             hold on
             
             if ~isempty(H)
@@ -347,7 +345,7 @@ if ~isempty(signals.time)
                                 signals.output...
                                 repmat(signals.ref(:,end)',npts,1)]*Hrightp')./...
                                 repmat(Hleftp',npts,1);
-                            plot(signals.time,min(up,[],2),'k')
+                            plot(signals.time,min(up,[],2),'k','DisplayName','hard constraint')
                         else
                             up = (repmat(Krightp',npts,1)-...
                                 [signals.state...
@@ -356,7 +354,7 @@ if ~isempty(signals.time)
                                 repmat(signals.unmeasurable_input',npts,1)...
                                 signals.output]*Hrightp')./...
                                 repmat(Hleftp',npts,1);
-                            plot(signals.time,min(up,[],2),'k')
+                            plot(signals.time,min(up,[],2),'k','DisplayName','hard constraint')
                         end
                     end
                     if ~isempty(Krightn)
@@ -369,7 +367,7 @@ if ~isempty(signals.time)
                                 signals.output...
                                 repmat(signals.ref(:,end)',npts,1)]*Hrightn')./...
                                 repmat(Hleftn',npts,1);
-                            plot(signals.time,max(down,[],2),'k')
+                            plot(signals.time,max(down,[],2),'k','DisplayName','hard constraint')
                         else
                             down = (repmat(Krightn',npts,1)-...
                                 [signals.state...
@@ -378,7 +376,7 @@ if ~isempty(signals.time)
                                 repmat(signals.unmeasurable_input',npts,1)...
                                 signals.output]*Hrightn')./...
                                 repmat(Hleftn',npts,1);
-                            plot(signals.time,max(down,[],2),'k')
+                            plot(signals.time,max(down,[],2),'k','DisplayName','hard constraint')
                         end
                     end                    
                 end
@@ -411,7 +409,7 @@ if ~isempty(signals.time)
                             signals.output...
                             repmat(signals.ref(:,end)',npts,1)]*Hsrightp')./...
                             repmat(Hsleftp',npts,1);
-                        plot(signals.time,min(up,[],2),'--k')
+                        plot(signals.time,min(up,[],2),'--k','DisplayName','soft constraint')
                     end
                     if ~isempty(Ksrightn)
                         down = (repmat(Ksrightn',npts,1)-...
@@ -422,14 +420,14 @@ if ~isempty(signals.time)
                             signals.output...
                             repmat(signals.ref(:,end)',npts,1)]*Hsrightn')./...
                             repmat(Hsleftn',npts,1);
-                        plot(signals.time,max(down,[],2),'--k')
+                        plot(signals.time,max(down,[],2),'--k','DisplayName','soft constraint')
                     end
                     
                     
                 end
             end
             
-            plot(signals.time,signals.input(:,i),'b')
+            plot(signals.time,signals.input(:,i),'b','DisplayName','input')
             xlabel('t')
             ylabel(unames{i})
             grid on
@@ -446,6 +444,7 @@ if ~isempty(signals.time)
         figure('Name','System outputs')
         for i = 1:ny
             subplot(ny,1,i)
+            legend show
             hold on
 
             if ~isempty(H)
@@ -478,7 +477,7 @@ if ~isempty(signals.time)
                                 signals.output(:,setdiff(1:ny,i))...
                                 repmat(signals.ref(:,end)',npts,1)]*Hrightp')./...
                                 repmat(Hleftp',npts,1);
-                            plot(signals.time,min(up,[],2),'k')
+                            plot(signals.time,min(up,[],2),'k','DisplayName','hard constraint')
                         else
                             up = (repmat(Krightp',npts,1)-...
                                 [signals.state...
@@ -487,7 +486,7 @@ if ~isempty(signals.time)
                                 repmat(signals.unmeasurable_input',npts,1)...
                                 signals.output(:,setdiff(1:ny,i))]*Hrightp')./...
                                 repmat(Hleftp',npts,1);
-                            plot(signals.time,min(up,[],2),'k')
+                            plot(signals.time,min(up,[],2),'k','DisplayName','hard constraint')
                         end
                     end
                     if ~isempty(Krightn)
@@ -500,7 +499,7 @@ if ~isempty(signals.time)
                                 signals.output(:,setdiff(1:ny,i))...
                                 repmat(signals.ref(:,end)',npts,1)]*Hrightn')./...
                                 repmat(Hleftn',npts,1);
-                            plot(signals.time,max(down,[],2),'k')
+                            plot(signals.time,max(down,[],2),'k','DisplayName','hard constraint')
                         else
                             down = (repmat(Krightn',npts,1)-...
                                 [signals.state...
@@ -509,7 +508,7 @@ if ~isempty(signals.time)
                                 repmat(signals.unmeasurable_input',npts,1)...
                                 signals.output(:,setdiff(1:ny,i))]*Hrightn')./...
                                 repmat(Hleftn',npts,1);
-                            plot(signals.time,max(down,[],2),'k')                            
+                            plot(signals.time,max(down,[],2),'k''DisplayName','hard constraint')                            
                         end
                     end
                 end
@@ -543,7 +542,7 @@ if ~isempty(signals.time)
                             signals.output(:,setdiff(1:ny,i))...
                             repmat(signals.ref(:,end)',npts,1)]*Hsrightp')./...
                             repmat(Hsleftp',npts,1);
-                        plot(signals.time,min(up,[],2),'--k')
+                        plot(signals.time,min(up,[],2),'--k','DisplayName','soft constraint')
                     end
                     if ~isempty(Ksrightn)
                         down = (repmat(Ksrightn',npts,1)-...
@@ -554,16 +553,15 @@ if ~isempty(signals.time)
                             signals.output(:,setdiff(1:ny,i))...
                             repmat(signals.ref(:,end)',npts,1)]*Hsrightn')./...
                             repmat(Hsleftn',npts,1);
-                        plot(signals.time,max(down,[],2),'--k')
+                        plot(signals.time,max(down,[],2),'--k','DisplayName','soft constraint')
                     end
                 end
             end
 
-            plot(signals.time,signals.output(:,i),'b')
+            plot(signals.time,signals.output(:,i),'b','DisplayName','output')
             if object.hasObserver()
-                plot(signals.time,signals.est_output(:,i),'r')
-                legend('real','estimated')
-            end
+                plot(signals.time,signals.est_output(:,i),'r','DisplayName','estimated output')
+            end            
             if object.hasController
                 ctrl = object.getController();
                 if ctrl.isTracking
@@ -571,7 +569,7 @@ if ~isempty(signals.time)
                         trackvar = ctrl.getTrackingVariable();
                         idx = find(trackvar == i);
                         if ~isempty(idx)
-                            plot([signals.time(1) signals.time(end)],[signals.ref(idx) signals.ref(idx)],'c')
+                            plot([signals.time(1) signals.time(end)],[signals.ref(idx) signals.ref(idx)],'c','DisplayName','reference output')
                         end
                     end
                 end
@@ -602,6 +600,7 @@ if ~isempty(signals.time)
         figure('Name','System states')
         for i = 1:nx
             subplot(nx,1,i)
+            legend show
             hold on
             
             if ~isempty(H)
@@ -632,7 +631,7 @@ if ~isempty(signals.time)
                             signals.output...
                             repmat(signals.ref(:,end)',npts,1)]*Hrightp')./...
                             repmat(Hleftp',npts,1);
-                        stairs(signals.time,min(up,[],2),'k')
+                        stairs(signals.time,min(up,[],2),'k','DisplayName','hard constraint')
                     end
                     if ~isempty(Krightn)
                         down = (repmat(Krightn',npts,1)-...
@@ -643,7 +642,7 @@ if ~isempty(signals.time)
                             signals.output...
                             repmat(signals.ref(:,end)',npts,1)]*Hrightn')./...
                             repmat(Hleftn',npts,1);
-                        stairs(signals.time,max(down,[],2),'k')
+                        stairs(signals.time,max(down,[],2),'k','DisplayName','hard constraint')
                     end
                     
                     
@@ -677,7 +676,7 @@ if ~isempty(signals.time)
                             signals.output...
                             repmat(signals.ref(:,end)',npts,1)]*Hsrightp')./...
                             repmat(Hsleftp',npts,1);
-                        stairs(signals.time,min(up,[],2),'--k')
+                        stairs(signals.time,min(up,[],2),'--k','DisplayName','soft constraint')
                     end
                     if ~isempty(Ksrightn)
                         down = (repmat(Ksrightn',npts,1)-...
@@ -688,18 +687,17 @@ if ~isempty(signals.time)
                             signals.output...
                             repmat(signals.ref(:,end)',npts,1)]*Hsrightn')./...
                             repmat(Hsleftn',npts,1);
-                        stairs(signals.time,max(down,[],2),'--k')
+                        stairs(signals.time,max(down,[],2),'--k','DisplayName','soft constraint')
                     end
                     
                     
                 end
             end
             
-            stairs(signals.time,signals.state(:,i),'b')
+            stairs(signals.time,signals.state(:,i),'b','DisplayName','state')
             if object.hasObserver()
-                stairs(signals.time,signals.est_state(:,i),'r')
-                legend('real','estimated')
-            end
+                stairs(signals.time,signals.est_state(:,i),'r','DisplayName','estimated state')
+            end            
             xlabel('t')
             ylabel(xnames{i})
             grid on
@@ -717,10 +715,11 @@ if ~isempty(signals.time)
             figure('Name','Unmeasurable inputs')
             for i = 1:nd
                 subplot(nd,1,i)
+                legend show
                 hold on
                 plot([signals.time(1) signals.time(end)],...
-                    [signals.unmeasurable_input(i) signals.unmeasurable_input(i)],'b')
-                plot(signals.time,signals.est_state(:,nx+i),'r')
+                    [signals.unmeasurable_input(i) signals.unmeasurable_input(i)],'b','DisplayName','unmeasurable input')
+                plot(signals.time,signals.est_state(:,nx+i),'r','DisplayName','estimated unmeasurable input')
                 xlabel('t')
                 ylabel(dnames{i})
                 grid on
@@ -746,6 +745,7 @@ if ~isempty(signals.time)
         figure('Name','System inputs')
         for i = 1:nu
             subplot(nu,1,i)
+            legend show
             hold on
             
             if ~isempty(H)
@@ -775,7 +775,7 @@ if ~isempty(signals.time)
                             signals.output...
                             repmat(signals.ref(:,end)',npts,1)]*Hrightp')./...
                             repmat(Hleftp',npts,1);
-                        stairs(signals.time,min(up,[],2),'k')
+                        stairs(signals.time,min(up,[],2),'k','DisplayName','hard constraint')
                     end
                     if ~isempty(Krightn)
                         down = (repmat(Krightn',npts,1)-...
@@ -786,7 +786,7 @@ if ~isempty(signals.time)
                             signals.output...
                             repmat(signals.ref(:,end)',npts,1)]*Hrightn')./...
                             repmat(Hleftn',npts,1);
-                        stairs(signals.time,max(down,[],2),'k')
+                        stairs(signals.time,max(down,[],2),'k','DisplayName','hard constraint')
                     end
                     
                 end
@@ -818,7 +818,7 @@ if ~isempty(signals.time)
                             signals.output...
                             repmat(signals.ref(:,end)',npts,1)]*Hsrightp')./...
                             repmat(Hsleftp',npts,1);
-                        stairs(signals.time,min(up,[],2),'--k')
+                        stairs(signals.time,min(up,[],2),'--k','DisplayName','soft constraint')
                     end
                     if ~isempty(Ksrightn)
                         down = (repmat(Ksrightn',npts,1)-...
@@ -829,14 +829,14 @@ if ~isempty(signals.time)
                             signals.output...
                             repmat(signals.ref(:,end)',npts,1)]*Hsrightn')./...
                             repmat(Hsleftn',npts,1);
-                        stairs(signals.time,max(down,[],2),'--k')
+                        stairs(signals.time,max(down,[],2),'--k','DisplayName','soft constraint')
                     end
                     
                     
                 end
             end
             
-            stairs(signals.time,signals.input(:,i),'b')
+            stairs(signals.time,signals.input(:,i),'b','DisplayName','input')
             xlabel('t')
             ylabel(unames{i})
             grid on
@@ -854,6 +854,7 @@ if ~isempty(signals.time)
         figure('Name','System outputs')
         for i = 1:ny
             subplot(ny,1,i)
+            legend show
             hold on
 
             if ~isempty(H)
@@ -884,7 +885,7 @@ if ~isempty(signals.time)
                             signals.output(:,setdiff(1:ny,i))...
                             repmat(signals.ref(:,end)',npts,1)]*Hrightp')./...
                             repmat(Hleftp',npts,1);
-                        stairs(signals.time,min(up,[],2),'k')
+                        stairs(signals.time,min(up,[],2),'k','DisplayName','hard constraint')
                     end
                     if ~isempty(Krightn)
                         down = (repmat(Krightn',npts,1)-...
@@ -895,7 +896,7 @@ if ~isempty(signals.time)
                             signals.output(:,setdiff(1:ny,i))...
                             repmat(signals.ref(:,end)',npts,1)]*Hrightn')./...
                             repmat(Hleftn',npts,1);
-                        stairs(signals.time,max(down,[],2),'k')
+                        stairs(signals.time,max(down,[],2),'k','DisplayName','hard constraint')
                     end
                     
                     
@@ -929,7 +930,7 @@ if ~isempty(signals.time)
                             signals.output(:,setdiff(1:ny,i))...
                             repmat(signals.ref(:,end)',npts,1)]*Hsrightp')./...
                             repmat(Hsleftp',npts,1);
-                        stairs(signals.time,min(up,[],2),'--k')
+                        stairs(signals.time,min(up,[],2),'--k','DisplayName','soft constraint')
                     end
                     if ~isempty(Ksrightn)
                         down = (repmat(Ksrightn',npts,1)-...
@@ -940,18 +941,17 @@ if ~isempty(signals.time)
                             signals.output(:,setdiff(1:ny,i))...
                             repmat(signals.ref(:,end)',npts,1)]*Hsrightn')./...
                             repmat(Hsleftn',npts,1);
-                        stairs(signals.time,max(down,[],2),'--k')
+                        stairs(signals.time,max(down,[],2),'--k','DisplayName','soft constraint')
                     end
                     
                     
                 end
             end
 
-            stairs(signals.time,signals.output(:,i),'b')
+            stairs(signals.time,signals.output(:,i),'b','DisplayName','output')
             if object.hasObserver()
-                stairs(signals.time,signals.est_output(:,i),'r')
-                legend('real','estimated')
-            end
+                stairs(signals.time,signals.est_output(:,i),'r','DisplayName','estimated output')
+            end            
             xlabel('t')
             ylabel(ynames{i})
             grid on
@@ -972,7 +972,7 @@ if ~isempty(signals.time)
             hold on
             plot(signals.state(:,1),signals.state(:,2),'k','linewidth',2)
             if object.hasObserver()
-                plot(signals.est_state(:,1),signals.est_state(:,2),'--k','linewidth',2)
+                plot(signals.est_state(:,1),signals.est_state(:,2),'--k','DisplayName','soft constraint','linewidth',2)
             end
         end
     end
