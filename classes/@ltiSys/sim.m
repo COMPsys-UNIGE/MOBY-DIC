@@ -156,6 +156,13 @@ end
 % Check initial condition
 x0 = x0(:);
 
+% % TO DO: add automatic model augmenting when the controller is made for tracking 
+% if object.hasController() 
+%     if isa(object.controller, 'explicitMPCctrl') && object.controller.getInformation.options.tracking
+%         x0 = [x0; 0.5*ones(object.nu, 1)];
+%     end
+% end
+
 if numel(x0) ~= object.nx
     error(['X0 must be a vector with ',num2str(object.nx),' elements']);
 end

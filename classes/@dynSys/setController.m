@@ -44,6 +44,11 @@ if ~isa(controller,'controller')
     error('CTRL must be a controller object')
 end
 
+% % TO DO: add automatic model augmenting when the controller is made for tracking 
+% if isa(controller, 'explicitMPCctrl') && controller.getInformation.options.tracking
+%     object = object.deltau();
+% end
+
 % Check compatibility
 if controller.getNumberOfStates() ~= object.nx
     error('Controller and system have different number of states');

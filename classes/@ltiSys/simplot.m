@@ -72,6 +72,18 @@ ny = object.ny;
 np = object.np;
 nd = object.nd;
 
+% % TO DO: add automatic model augmenting when the controller is made for tracking 
+% if object.hasController() 
+%     if isa(object.controller, 'explicitMPCctrl') && object.controller.getInformation.options.tracking
+%         signals.input = signals.input + signals.state(:, end-size(signals.input,2)+1:end);
+%         signals.state = signals.state(:, 1:end-size(signals.input,2));
+%         nx = nx-nu;
+%         for j = 1:nu
+%             unames{j}(1:6) = [];
+%         end
+%     end
+% end
+
 nxref = numel(object.getController.getTrackingVariable);
 
 npts = numel(signals.time);

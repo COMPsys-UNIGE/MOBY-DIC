@@ -10,6 +10,7 @@ function optout = MPCset(sys,options)
 %
 % Alberto Oliveri (alberto.oliveri@unige.it)
 % Tomaso Poggi (tpoggi@essbilbao.org)
+% Alessandro Ravera (alessandro.ravera@edu.unige.it)
 %
 % Copyright (C) 2015 University of Genoa, Italy.
 

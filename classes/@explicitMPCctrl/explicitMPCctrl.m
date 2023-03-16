@@ -31,7 +31,7 @@ classdef explicitMPCctrl < controller
     % inequality constraints to be fulfilled. OPTS is a structure with the
     % following fields:
     % - N, Nu: prediction and control horizon (default: Nu = N)
-    % - P, Q, R: matrices defining the MPC cost function (default: P = Q)
+    % - P, Q, R, rho: matrices defining the MPC cost function (default: P = Q)
     % - norm: norm used in the cost function; available values are 1, 2 or
     %         inf (default: norm = 2)
     % - K, O: define the control function after the control horizon Nu.
@@ -76,7 +76,7 @@ classdef explicitMPCctrl < controller
     % Contributors:
     %
     % Alberto Oliveri (alberto.oliveri@unige.it)
-    % Mateo Lodi (matteo.lodi@edu.unige.it)
+    % Matteo Lodi (matteo.lodi@edu.unige.it)
     %
     % Copyright (C) 2016 University of Genoa, Italy.
     
@@ -370,6 +370,18 @@ classdef explicitMPCctrl < controller
                         disp('Discretizing system...')
                         sys = sys.discretize(TsCtrl);
                     end
+
+%                     % Check trackvariable
+%                     if options.tracking
+%                         tracking = true;
+%                         trackvar = options.trackvariable;
+%                         xreference = [];
+%                         sys = deltau(sys);
+%                     else
+%                         tracking = false;
+%                         trackvar = [];
+%                         xreference = options.ref;
+%                     end
                     
                     % Number of states, parameters, inputs and outputs
                     nx = sys.getNumberOfStates();
@@ -444,17 +456,17 @@ classdef explicitMPCctrl < controller
                         error('The prediction horizon set in the ''constraints'' object is different from OPTS.N.');
                     end
                                            
-                    % Retrieve system matrices
-                    A = sys.getMatrices('A');
-                    B = sys.getMatrices('B');
-                    Ex = sys.getMatrices('Ex');
-                    Fx = sys.getMatrices('Fx');
-                    Gx = sys.getMatrices('Gx');
-                    C = sys.getMatrices('C');
-                    D = sys.getMatrices('D');
-                    Ey = sys.getMatrices('Ey');
-                    Fy = sys.getMatrices('Fy');
-                    Gy = sys.getMatrices('Gy');
+%                     % Retrieve system matrices
+%                     A = sys.getMatrices('A');
+%                     B = sys.getMatrices('B');
+%                     Ex = sys.getMatrices('Ex');
+%                     Fx = sys.getMatrices('Fx');
+%                     Gx = sys.getMatrices('Gx');
+%                     C = sys.getMatrices('C');
+%                     D = sys.getMatrices('D');
+%                     Ey = sys.getMatrices('Ey');
+%                     Fy = sys.getMatrices('Fy');
+%                     Gy = sys.getMatrices('Gy');
                     
                     % Retrieve hard constraint matrices
                     [H, K] = constr.getAllConstraints('hard');
@@ -569,6 +581,43 @@ classdef explicitMPCctrl < controller
                     
                     disp(' ')
                     disp('Designing explicit MPC controller through MPT3...')
+
+% %                     TO DO: add automatic model augmenting when the controller is made for tracking 
+%                     if options.tracking
+%                         sys = deltau(sys);
+%                         nx = nx+nu;
+%                         for j=1:numel(H)
+%                             Hx{j} = [Hx{j}, Hu{j}];
+%                             Hxs{j} = [Hxs{j}, Hus{j}];
+%                             Hu{j} = zeros(size(Hu{j},1),nu);
+%                             Hus{j} = zeros(size(Hu{j},1),nu);
+%                             Hr{j} = [Hr{j}, zeros(size(Hr{j},1),nu)];
+%                             Hrs{j} = [Hrs{j}, zeros(size(Hrs{j},1),nu)];
+%                         end
+%                         Q = zeros(nx);
+%                         Q(1:nx-nu,1:nx-nu) = options.Q;
+%                         options.Q = Q;
+%                         P = zeros(nx);
+%                         P(1:nx-nu,1:nx-nu) = options.P;
+%                         options.P = P;
+%                         options.ref = [options.ref; options.uref];
+%                         xnames = [xnames; unames];
+%                         for j=1:nu
+%                             unames{j} = ['delta_', unames{j}];
+%                         end
+%                     end
+
+                    % Retrieve system matrices
+                    A = sys.getMatrices('A');
+                    B = sys.getMatrices('B');
+                    Ex = sys.getMatrices('Ex');
+                    Fx = sys.getMatrices('Fx');
+                    Gx = sys.getMatrices('Gx');
+                    C = sys.getMatrices('C');
+                    D = sys.getMatrices('D');
+                    Ey = sys.getMatrices('Ey');
+                    Fy = sys.getMatrices('Fy');
+                    Gy = sys.getMatrices('Gy');
                     
                     % Set up problem in YALMIP
                     x = sdpvar(nx,options.N+1);

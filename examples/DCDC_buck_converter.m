@@ -50,7 +50,7 @@ ctsys = ctsys.setParameterNames({'iout'});
 %% MPC controller design
 
 % Select MPC type (implicit, explicit, approximate)
-mpcType = "implicit";
+mpcType = "explicit";
 
 % Define the sampling time
 Ts = 1/f;
@@ -104,17 +104,18 @@ R = 1;
 
 % Controller options
 options = struct( ...
-             'P', P,          ... % matrix P of the cost function
-             'Q', Q,          ... % matrix Q of the cost function
-             'R', R,          ... % matrix R of the cost function
-             'N', N,          ... % prediction horizon
-            'Nu', Nu,         ... % control horizon
-             'K', [],         ... % u = Kx+O, after the control horizon
-             'O', [],         ... % u = Kx+O, after the control horizon
-      'tracking', true,       ... % regulation or tracking problem
- 'trackvariable', 2,          ... % name or index of the variable to track (only for tracking)
-          'xref', [],         ... % constant reference state (only for regulation)
-          'uref', []          ... % constant reference input (only for regulation)
+                   'P', P,          ... % matrix P of the cost function
+                   'Q', Q,          ... % matrix Q of the cost function
+                   'R', R,          ... % matrix R of the cost function
+                   'N', N,          ... % prediction horizon
+                  'Nu', Nu,         ... % control horizon
+                   'K', [],         ... % u = Kx+O, after the control horizon
+                   'O', [],         ... % u = Kx+O, after the control horizon
+            'tracking', true,       ... % regulation or tracking problem
+       'trackvariable', 2,          ... % name or index of the variable to track (only for tracking)
+                'xref', [],         ... % constant reference state (only for regulation)
+                'uref', [],         ... % constant reference input (only for regulation)
+'constantInputAfterNu', true        ... % u(i) = u(Nu), i=Nu+1,...,N
     );
 
 % Design controller
@@ -144,7 +145,7 @@ x0 = [0 0]';
 iout = 0.8;
 
 % Reference output voltage
-vref = 1.8;
+vref = 3.3;
 
 % Simulation time
 T = 10e-3;

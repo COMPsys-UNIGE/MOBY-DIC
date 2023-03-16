@@ -19,7 +19,8 @@ classdef implicitMPCctrl < controller
     % inequality constraints to be fulfilled. OPTS is a structure with the
     % following fields:
     % - N, Nu: prediction and control horizon (default: Nu = N)
-    % - P, Q, R: matrices defining the MPC cost function (default: P = Q)
+    % - P, Q, R, rho: matrices defining the MPC cost function
+    %                 (default: P = Q)
     % - norm: norm used in the cost function; available values are 1, 2 or
     %         inf (default: norm = 2)
     % - K, O: define the control function after the control horizon Nu.
@@ -35,6 +36,11 @@ classdef implicitMPCctrl < controller
     %              and reference input (default: ref = 0, uref = 0)
     % - constantInputAfterNu : boolean indicating if the control must be 
     %                          u = Kx + O or u(i) = u(Nu) after Nu
+    % - algorithm : optimization algorithm (quadprog or admm)
+    % - defaultOutput : starting point for the optimization algorithm
+    %                   (default: defaultOutput = 0)
+    % - trajectoryTracking : boolean indicating if the reference trajectory
+    %                        is known (only for simulation)
     %
     %
     % implicitMPCctrl methods:
@@ -45,12 +51,19 @@ classdef implicitMPCctrl < controller
     %   generateVHDL - Generates VHDL files for the circuit implementation 
     %                  of the MPC controller on FPGA
     %   getInformation - gets the information associated to the implicitMPCctrl object
+    %   computeQP - computes the matrices of the QP associated to the
+    %               implicit MPC problem
     %
     % The implicitMPCctrl object is derived from controller and inherits
     % all its methods.
     %
     % See also ltiSys, constraints.
     
+    % Contributors:
+    %
+    % Alessandro Ravera (alessandro.ravera@edu.unige.it)
+    % Alberto Oliveri (alberto.oliveri@unige.it)
+    %
     % Copyright (C) 2021 University of Genoa, Italy.
     
     % Legal note:
@@ -89,7 +102,7 @@ classdef implicitMPCctrl < controller
                 
                 object.sys = [];
                 object.constr = [];
-                object.options = [];constantInputAfterNu
+                object.options = [];
 
             % Create an explicit MPC controller starting from the MPC
             % controller generated with MATLAB MPC toolbox
