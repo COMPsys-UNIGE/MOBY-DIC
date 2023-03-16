@@ -162,7 +162,7 @@ if ~isfield(options,'tracking')
 elseif isempty(options.tracking)
     optout.tracking = false;
 else
-    optout.tracking = boolean(options.tracking);
+    optout.tracking = logical(options.tracking);
 end
 
 if ~isfield(options,'trackvariable')

@@ -145,7 +145,7 @@ x0 = [0 0]';
 iout = 0.8;
 
 % Reference output voltage
-vref = 3.3;
+vref = 1.8;
 
 % Simulation time
 T = 10e-3;
