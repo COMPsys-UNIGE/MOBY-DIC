@@ -64,7 +64,7 @@ Nc = 1;
 
 % Constraints
 imin = 0;              % minimum inductor current
-imax = 3;              % maximum inductor current
+imax = 4;              % maximum inductor current
 voutmin = -0.1;        % minimum output voltage
 voutmax = 3.75;        % maximum output voltage
 dmin = 0.2;            % minimum duty cycle
@@ -98,8 +98,8 @@ constr = constr.setConstraints('x1', xmin(1), xmax(1), 0);
 constr = constr.setConstraints('x2', xmin(2), xmax(2), 0);
 
 % MPC weight matrices
-P = [ 0, 0; 0, 2 ];
-Q = [ 0, 0; 0, 2 ];
+P = [ 0, 0; 0, 150 ];
+Q = [ 0, 0; 0, 150 ];
 R = 1;
 
 % Controller options
@@ -154,7 +154,7 @@ T = 10e-3;
 opts.constraints = constr;
 
 % Closed-loop simulation (continuous time)
-ctSysReg.simplot(T, x0, iout, [], vref, opts);
+ctSysRegSignals = ctSysReg.simplot(T, x0, iout, [], vref, opts);
 
 %% Observer design
 
@@ -187,7 +187,7 @@ ctSysObs = ctSysReg.setObserver(obs);
 opts.xest0 = x0;
 
 % Closed-loop simulation
-ctSysObs.simplot(T, x0, iout, [], vref, opts);
+ctSysObsSignals = ctSysObs.simplot(T, x0, iout, [], vref, opts);
 
 %% C and VHDL code generation
 % The toolbox allows for:
@@ -220,7 +220,7 @@ range.ymax = xmax(2);
 % Direction Method of Multipliers (ADMM) algorithm must be set.
 if mpcType == "implicit"    
     ADMMparameters.regPar = 2;   % Regularization parameter
-    ADMMparameters.maxIter = 40; % Number of iterations
+    ADMMparameters.maxIter = 20; % Number of iterations
     
     cOptions = struct( ...
                'range', range,                  ... % signals range
@@ -265,7 +265,8 @@ else
                'frequency', 5e7,                  ... % FPGA working frequency
                'useADC', 1,                       ... % manage ADC scalings
                'useDAC', 1,                       ... % manage DAC scalings
-               'range', range                     ... % signals range
+               'range', range,                    ... % signals range
+               'defaultOutput', 0.5               ... % output initial value
         );    
 end
 
