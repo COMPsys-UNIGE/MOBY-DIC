@@ -29,3 +29,9 @@ codegen/
 
 # Octave session info
 octave-workspace
+functions/mex/linear2matrixmex.mexw64
+functions/mex/MPCctrl_evalmex.mexw64
+functions/mex/pwagFunction_evalmex.mexw64
+functions/mex/pwagFunction_findRegionmex.mexw64
+functions/mex/pwasFunction_alphamex.mexw64
+functions/mex/pwasFunction_evalmex.mexw64

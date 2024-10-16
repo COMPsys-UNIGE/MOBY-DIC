@@ -119,6 +119,7 @@ end
 if isfield(object.options, 'trajectoryTracking')
     trajTrack = object.options.trajectoryTracking;
     if ~trajTrack
+        ref = object.options.ref;
         ref = repmat(ref(:,1),1,N+1);
     elseif size(ref,2) < N+1
         ref = [ref, repmat(ref(:,end),1,N+1-size(ref,2))];
